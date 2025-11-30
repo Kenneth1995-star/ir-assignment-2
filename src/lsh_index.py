@@ -1,19 +1,21 @@
-# src/lsh_index.py
+# HERE I AM building a MinHash LSH index from sketches and saving it to joblib.
+# I AM also saving the sketches with it for later diagnostics or benchmarking.
+
 import argparse
 import joblib
 from datasketch import MinHashLSH
 
 def build_lsh(sketches, num_perm, threshold):
     """
-    Build MinHash LSH. We store keys as strings "i" so joblib can save easily.
+    HERE I AM building the LSH index.
+    - `sketches` is a list of MinHash objects
+    - `num_perm` is number of hash permutations
+    - `threshold` is the Jaccard similarity threshold for candidate retrieval
     """
-    # MinHashLSH uses banding internally; threshold controls recall/precision trade-off
     lsh = MinHashLSH(threshold=threshold, num_perm=num_perm)
-
     print("Building LSH index (this can take a while for many docs)...")
     for i, sk in enumerate(sketches):
-        lsh.insert(str(i), sk)
-
+        lsh.insert(str(i), sk)  # HERE I AM inserting keys as strings for joblib safety
     return lsh
 
 if __name__ == "__main__":
@@ -27,10 +29,11 @@ if __name__ == "__main__":
     sketches = joblib.load(args.sketches)
     lsh = build_lsh(sketches, num_perm=args.num_perm, threshold=args.threshold)
 
-    # Save both the LSH and the sketches; benchmark and diagnostics rely on both
+    # HERE I AM saving both the LSH index and sketches for later use
     out_obj = {"lsh": lsh, "sketches": sketches}
     joblib.dump(out_obj, args.out)
     print("Saved MinHash LSH + sketches to", args.out)
+
 
 
 
